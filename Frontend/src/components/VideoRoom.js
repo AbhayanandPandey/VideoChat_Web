@@ -7,7 +7,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './VidroRoom.css';
 
 // Initialize socket once
-const socket = io('http://localhost:5000');
+const socket = io();
 
 export default function VideoRoom() {
   const { roomId } = useParams();
@@ -38,7 +38,11 @@ export default function VideoRoom() {
         socket.on('user-connected', async userId => {
           if (userId === socket.id) return;
 
-          const pc = new RTCPeerConnection(pcConfig);
+          const pc = new RTCPeerConnection({
+            iceServers: [
+              { urls: 'stun:stun.l.google.com:19302' },
+            ]
+          });(pcConfig);
           peersRef.current[userId] = pc;
           stream.getTracks().forEach(track => pc.addTrack(track, stream));
 
