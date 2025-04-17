@@ -26,10 +26,7 @@ io.on('connection', socket => {
     if (!rooms[roomId]) rooms[roomId] = [];
     rooms[roomId].push(socket.id);
 
-    // Notify others in room
     socket.to(roomId).emit('user-connected', socket.id);
-
-    // Relay offer/answer/ICE to other peers
     socket.on('offer', data => socket.to(data.target).emit('offer', { sdp: data.sdp, sender: socket.id }));
     socket.on('answer', data => socket.to(data.target).emit('answer', { sdp: data.sdp, sender: socket.id }));
     socket.on('ice-candidate', data => socket.to(data.target).emit('ice-candidate', { candidate: data.candidate, sender: socket.id }));
