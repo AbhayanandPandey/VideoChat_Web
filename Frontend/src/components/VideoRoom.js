@@ -40,7 +40,7 @@ export default function VideoRoom() {
 
           const pc = new RTCPeerConnection({
             iceServers: [
-              { urls: 'stun:stun.l.google.com:19302' },
+              { urls: 'stun:stun.l.google.com:19302' }, 
             ]
           });(pcConfig);
           peersRef.current[userId] = pc;
