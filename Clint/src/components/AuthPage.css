@@ -1,0 +1,29 @@
+.auth-container {
+    width: 300px;
+    margin: 100px auto;
+    text-align: center;
+    font-family: sans-serif;
+  }
+  
+  .auth-form input {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+  }
+  
+  .auth-form button {
+    padding: 10px;
+    width: 100%;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .switch-link {
+    margin-top: 10px;
+    color: #007bff;
+    cursor: pointer;
+  }
+  
