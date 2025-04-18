@@ -1,49 +1,49 @@
 const express = require('express');
 const http = require('http');
-const cors = require('cors');
-const mongoose = require('mongoose');
-const connectDB = require('./config/db');
-const authRoutes = require('./routes/auth');
 const { Server } = require('socket.io');
-require('dotenv').config();
+const cors = require('cors');
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-  origin: '*',
-  methods: ['GET', 'POST']
-}
+    origin: '*', // For dev, use your React frontend URL in prod
+    methods: ['GET', 'POST']
+  }
 });
 
-connectDB();
 app.use(cors());
-app.use(express.json());
-app.use('/api/auth', authRoutes);
 
-const rooms = {};
+const PORT = 5000;
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 io.on('connection', socket => {
+  console.log(`New connection: ${socket.id}`);
+
   socket.on('join-room', (roomId, userId) => {
     socket.join(roomId);
-    if (!rooms[roomId]) rooms[roomId] = [];
-    rooms[roomId].push(socket.id);
+    socket.to(roomId).emit('user-connected', userId);
+    console.log(`${userId} joined room ${roomId}`);
 
-    socket.to(roomId).emit('user-connected', socket.id);
-    socket.on('offer', data => socket.to(data.target).emit('offer', { sdp: data.sdp, sender: socket.id }));
-    socket.on('answer', data => socket.to(data.target).emit('answer', { sdp: data.sdp, sender: socket.id }));
-    socket.on('ice-candidate', data => socket.to(data.target).emit('ice-candidate', { candidate: data.candidate, sender: socket.id }));
+    socket.on('offer', ({ target, sdp }) => {
+      io.to(target).emit('offer', { sender: socket.id, sdp });
+    });
+
+    socket.on('answer', ({ target, sdp }) => {
+      io.to(target).emit('answer', { sender: socket.id, sdp });
+    });
+
+    socket.on('ice-candidate', ({ target, candidate }) => {
+      io.to(target).emit('ice-candidate', { sender: socket.id, candidate });
+    });
 
     socket.on('chat-message', data => {
-      io.to(roomId).emit('chat-message', { user: socket.id, message: data });
+      io.to(roomId).emit('chat-message', data);
     });
 
     socket.on('disconnect', () => {
-      rooms[roomId] = rooms[roomId].filter(id => id !== socket.id);
       socket.to(roomId).emit('user-disconnected', socket.id);
+      console.log(`User disconnected: ${socket.id}`);
     });
   });
 });
-
-const PORT =  5000;
-server.listen(PORT,'0.0.0.0', () => console.log(`Server running on port ${PORT}`));

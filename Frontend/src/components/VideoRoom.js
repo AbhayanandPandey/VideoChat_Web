@@ -6,7 +6,6 @@ import { Mic, MicOff, Video, VideoOff, LogOut, Send } from 'lucide-react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './VidroRoom.css';
 
-// Initialize socket once
 const socket = io();
 
 export default function VideoRoom() {
@@ -14,36 +13,41 @@ export default function VideoRoom() {
   const navigate = useNavigate();
   const localVideoRef = useRef();
   const peersRef = useRef({});
-
   const [remoteStreams, setRemoteStreams] = useState([]);
   const [messages, setMessages] = useState([]);
   const [chatInput, setChatInput] = useState('');
   const [micOn, setMicOn] = useState(true);
   const [camOn, setCamOn] = useState(true);
-
   const localStreamRef = useRef();
 
   useEffect(() => {
     const pcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
 
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+    navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'user' } }, // Front camera for mobile
+      audio: true
+    })
       .then(stream => {
         localStreamRef.current = stream;
+
+        // Attach local stream with fallback delay
         if (localVideoRef.current) {
           localVideoRef.current.srcObject = stream;
         }
+        setTimeout(() => {
+          if (localVideoRef.current && !localVideoRef.current.srcObject) {
+            localVideoRef.current.srcObject = stream;
+          }
+        }, 1000);
 
         socket.emit('join-room', roomId, socket.id);
 
         socket.on('user-connected', async userId => {
           if (userId === socket.id) return;
 
-          const pc = new RTCPeerConnection({
-            iceServers: [
-              { urls: 'stun:stun.l.google.com:19302' }, 
-            ]
-          });(pcConfig);
+          const pc = new RTCPeerConnection(pcConfig);
           peersRef.current[userId] = pc;
+
           stream.getTracks().forEach(track => pc.addTrack(track, stream));
 
           pc.onicecandidate = e => {
@@ -123,14 +127,14 @@ export default function VideoRoom() {
   const removeRemoteStream = id => setRemoteStreams(prev => prev.filter(v => v.id !== id));
 
   const toggleMic = () => {
-    const tracks = localStreamRef.current.getAudioTracks();
-    tracks.forEach(t => t.enabled = !t.enabled);
+    const tracks = localStreamRef.current?.getAudioTracks();
+    tracks?.forEach(t => t.enabled = !t.enabled);
     setMicOn(p => !p);
   };
 
   const toggleCam = () => {
-    const tracks = localStreamRef.current.getVideoTracks();
-    tracks.forEach(t => t.enabled = !t.enabled);
+    const tracks = localStreamRef.current?.getVideoTracks();
+    tracks?.forEach(t => t.enabled = !t.enabled);
     setCamOn(p => !p);
   };
 
@@ -156,28 +160,42 @@ export default function VideoRoom() {
             <video
               key={peer.id}
               ref={v => v && (v.srcObject = peer.stream)}
-              autoPlay playsInline
+              autoPlay
+              playsInline
               className="vid-lg rounded"
             />
           )) : (
             <div className="waiting-text">Waiting for others...</div>
           )}
         </div>
-        <div className="local-video-wrapper ">
-          <video ref={localVideoRef} autoPlay muted playsInline className="vid-sm rounded border" />
+        <div className="local-video-wrapper">
+          <video
+            ref={localVideoRef}
+            autoPlay
+            muted
+            playsInline
+            className="vid-sm rounded border"
+          />
         </div>
         <div className="controls d-flex justify-content-center gap-2 p-2">
-          <button className="btn btn-outline-light btn-icon" onClick={toggleMic}>{micOn ? <Mic /> : <MicOff />}</button>
-          <button className="btn btn-outline-light btn-icon" onClick={toggleCam}>{camOn ? <Video /> : <VideoOff />}</button>
-          <button className="btn btn-outline-danger btn-icon" onClick={leaveRoom}><LogOut /></button>
+          <button className="btn btn-outline-light btn-icon" onClick={toggleMic}>
+            {micOn ? <Mic /> : <MicOff />}
+          </button>
+          <button className="btn btn-outline-light btn-icon" onClick={toggleCam}>
+            {camOn ? <Video /> : <VideoOff />}
+          </button>
+          <button className="btn btn-outline-danger btn-icon" onClick={leaveRoom}>
+            <LogOut />
+          </button>
         </div>
       </div>
+
       {/* Chat Section */}
       <div className="chat-section bg-light d-flex flex-column p-3">
         <div className="flex-grow-1 overflow-auto mb-3">
-          {messages.map((m,i) => (
-            <div key={i} className={`chat-msg ${m.user===socket.id?'self':'other'}`}>
-              <strong>{m.user===socket.id?'You':m.user==='System'?'🔔':m.user.slice(0,6)}:</strong> {m.message}
+          {messages.map((m, i) => (
+            <div key={i} className={`chat-msg ${m.user === socket.id ? 'self' : 'other'}`}>
+              <strong>{m.user === socket.id ? 'You' : m.user === 'System' ? '🔔' : m.user.slice(0, 6)}:</strong> {m.message}
             </div>
           ))}
         </div>
@@ -187,7 +205,7 @@ export default function VideoRoom() {
             placeholder="Type a message..."
             value={chatInput}
             onChange={e => setChatInput(e.target.value)}
-            onKeyDown={e => e.key==='Enter' && sendMessage()}
+            onKeyDown={e => e.key === 'Enter' && sendMessage()}
           />
           <button className="btn btn-primary" onClick={sendMessage}><Send /></button>
         </div>
