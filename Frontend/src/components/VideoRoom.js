@@ -24,13 +24,12 @@ export default function VideoRoom() {
     const pcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
 
     navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { ideal: 'user' } }, // Front camera for mobile
+      video: { facingMode: { ideal: 'user' } }, 
       audio: true
     })
       .then(stream => {
         localStreamRef.current = stream;
 
-        // Attach local stream with fallback delay
         if (localVideoRef.current) {
           localVideoRef.current.srcObject = stream;
         }
@@ -153,7 +152,6 @@ export default function VideoRoom() {
 
   return (
     <div className="d-flex flex-column flex-lg-row min-vh-100">
-      {/* Video Section */}
       <div className="flex-fill video-bg p-3 position-relative">
         <div className="d-flex flex-wrap justify-content-center align-items-start gap-3">
           {remoteStreams.length ? remoteStreams.map(peer => (
@@ -190,7 +188,6 @@ export default function VideoRoom() {
         </div>
       </div>
 
-      {/* Chat Section */}
       <div className="chat-section bg-light d-flex flex-column p-3">
         <div className="flex-grow-1 overflow-auto mb-3">
           {messages.map((m, i) => (
