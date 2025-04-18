@@ -4,25 +4,43 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const router = express.Router();
 
-const users = [];
-
-router.post('/register', (req, res) => {
+// Register
+router.post('/register', async (req, res) => {
   const { username, password } = req.body;
-  const userExists = users.find(user => user.username === username);
-  if (userExists) {
-    return res.status(400).json({ error: 'User already exists' });
+
+  try {
+    const userExists = await User.findOne({ username });
+    if (userExists) {
+      return res.status(400).json({ error: 'User already exists' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = new User({ username, password: hashedPassword });
+    await user.save();
+
+    res.json({ message: 'User registered successfully' });
+  } catch (error) {
+    console.error('❌ Error in /register:', error.message);
+    res.status(500).json({ error: 'Something went wrong' });
   }
-  users.push({ username, password });
-  res.json({ message: 'Registered successfully' });
 });
 
-router.post('/login', (req, res) => {
+// Login
+router.post('/login', async (req, res) => {
   const { username, password } = req.body;
-  const user = users.find(user => user.username === username && user.password === password);
-  if (!user) {
-    return res.status(401).json({ error: 'Invalid credentials' });
+
+  try {
+    const user = await User.findOne({ username });
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const token = jwt.sign({ id: user._id }, 'secret123', { expiresIn: '1d' });
+    res.json({ token });
+  } catch (error) {
+    console.error('❌ Error in /login:', error.message);
+    res.status(500).json({ error: 'Something went wrong' });
   }
-  res.json({ token: 'ufvriusrdbfcouwdrdcd' });
 });
 
 module.exports = router;
