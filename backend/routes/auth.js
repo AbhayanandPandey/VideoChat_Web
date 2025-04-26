@@ -6,18 +6,18 @@ const router = express.Router();
 
 // Register
 router.post('/register', async (req, res) => {
-  const { username, password } = req.body;
+  const { username,email, password } = req.body;
 
   try {
-    const userExists = await User.findOne({ username });
+    const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ error: 'User already exists' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({ username, password: hashedPassword });
+    const user = new User({ username,email, password: hashedPassword });
     await user.save();
-
+    console.log('✅ User registered:', username);
     res.json({ message: 'User registered successfully' });
   } catch (error) {
     console.error('❌ Error in /register:', error.message);
@@ -27,10 +27,10 @@ router.post('/register', async (req, res) => {
 
 // Login
 router.post('/login', async (req, res) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ email });
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }

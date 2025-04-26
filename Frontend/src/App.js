@@ -1,15 +1,16 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import AuthPage from './components/AuthPage';
-import Dashboard from './components/Dashboard';
-import VideoRoom from './components/VideoRoom';
-
+import Home from './components/Home/home.jsx';
+import LoginSignup from './components/LoginSignup/loginSignup.jsx';
+import Index from './components/Home/index.jsx';
 function App() {
   return (
+    <>
       <Routes>
-        <Route path="/" element={<AuthPage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/room/:roomId" element={<VideoRoom />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<LoginSignup />} /> 
+          <Route path="/index" element={<Index />} />
       </Routes>
+    </>
   );
 }
 
