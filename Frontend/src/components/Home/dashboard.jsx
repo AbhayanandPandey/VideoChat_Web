@@ -24,7 +24,30 @@ export default function Dashboard() {
       .catch(() => navigate("/login"));
   }, [navigate]);
 
-  if (!user) return <p className="text-center mt-5">Loading…</p>;
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Set timeout for 1 second
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 100);
+
+    return () => clearTimeout(timer); // Clean up
+  }, []);
+
+  if (loading || !user) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "60vh" }}>
+        <div className="text-center">
+          <div className="spinner-border text-primary mb-3" role="status" style={{ width: "4rem", height: "4rem" }}>
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="text-muted">Loading, please wait...</p>
+        </div>
+      </div>
+    );
+  }
+  
 
   return (
     <>
