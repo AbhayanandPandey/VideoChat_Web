@@ -1,67 +1,75 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-const Dashboard = () => {
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap-icons/font/bootstrap-icons.css";
+import { Link } from "react-router-dom";
+import Navbar from "../Navbar/navbarlogin";
+import Footer from "../Footer/footer";
+export default function Dashboard() {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token1");  // 🛠 fixed
-    if (!token) {
-      navigate("/login"); // redirect if not logged in
-      return;
-    }
-  
-    const fetchUserData = async () => {
-      try {
-        const response = await fetch("/api/auth/dashboard", {  // 🛠 fixed URL
-          headers: { Authorization: `Bearer ${token}` },  // 🛠 fixed
-        });
-  
-        const data = await response.json();
-        if (response.ok) {
-          setUser(data.user);
-        } else {
-          console.error(data.error);
-          navigate("/login");
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        navigate("/login");
-      } finally {
-        setLoading(false);
-      }
-    };
-  
-    fetchUserData();
+    const token = localStorage.getItem("token1");
+    if (!token) return navigate("/login");
+
+    fetch("/api/auth/dashboard", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(res => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      })
+      .then(data => setUser(data.user))
+      .catch(() => navigate("/login"));
   }, [navigate]);
-  
 
-  if (loading) {
-    return <p className="text-center mt-10">Loading...</p>;
-  }
-
-  if (!user) {
-    return (
-      <p className="text-center text-red-500 mt-10">
-        Please login to view your dashboard.
-      </p>
-    );
-  }
+  if (!user) return <p className="text-center mt-5">Loading…</p>;
 
   return (
-    <div className="max-w-3xl mx-auto mt-10 bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4 text-center">Dashboard</h2>
+    <>
+    <Navbar />
+    
+    <div className="bg-light min-vh-100 py-5">
+      <div className="container">
+        <div
+          className="card shadow-lg rounded-lg overflow-hidden mx-auto"
+          style={{ maxWidth: "800px" }}
+        >
+          {/* Header with gradient */}
+          <div
+            className="p-4 d-flex align-items-center text-white"
+            style={{
+              background:
+                "linear-gradient(90deg, #4e54c8 0%, #8f94fb 100%)",
+            }}
+          >
+            <i className="bi bi-speedometer2 fs-2 me-3"></i>
+            <h1 className="mb-0">Dashboard</h1>
+          </div>
 
-      <div className="mb-6 p-4 bg-blue-100 rounded-lg">
-        <p className="text-lg font-semibold">Welcome, {user.username}!</p>
-        <p className="text-lg">
-          Email: <span className="font-bold">{user.email}</span>
-        </p>
+          {/* Body */}
+          <div className="card-body">
+            <div className="d-flex align-items-center mb-4">
+              <i className="bi bi-person-circle text-primary fs-1 me-3"></i>
+              <div>
+                <h3 className="mb-1">Welcome, {user.username}</h3>
+                <p className="mb-0 text-muted">{user.email}</p>
+              </div>
+            </div>
+
+            {/* You can add more sections here: stats, recent activity, etc. */}
+          </div>
+            <button className="btn btn-danger" onClick={() => {
+              localStorage.removeItem("token1");
+              navigate("/");
+            }}>
+              Logout    
+              </button>
+        </div>
       </div>
     </div>
+    <Footer />
+    </>
   );
-};
-
-export default Dashboard;
+}

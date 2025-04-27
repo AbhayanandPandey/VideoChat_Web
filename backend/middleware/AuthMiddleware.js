@@ -1,18 +1,18 @@
-const jwt = require("jsonwebtoken");
+// Backend/middleware/AuthMiddleware.js
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
-const authMiddleware = (req, res, next) => {
-  
-  const token = req.header("Authorization")?.split(" ")[1];
-  
-  if (!token) return res.status(401).json({ msg: "No token, authorization denied" });
- 
+module.exports = (req, res, next) => {
+  const auth = req.headers.authorization;
+  if (!auth || !auth.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  const token = auth.split(' ')[1];
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+    req.user = decoded; // { userId }
     next();
   } catch (err) {
-    res.status(401).json({ msg: "Invalid token" });
+    return res.status(401).json({ error: 'Invalid token' });
   }
 };
-
-module.exports = authMiddleware;

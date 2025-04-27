@@ -12,7 +12,7 @@ const NavbarLogin = () => {
   const toggleAuthMode = () => {
     setIsLogin(!isLogin);
   };
-
+  const isActive = (path) => location.pathname === path ? 'active' : '';
 
   const closeModal = () => {
     setShowModal(false);
@@ -33,19 +33,19 @@ const NavbarLogin = () => {
           <div className="collapse navbar-collapse justify-content-end" id="navbarNav">
             <ul className="navbar-nav gap-2 text-center mt-2 p-2">
               <li className="nav-item">
-                <a className="nav-link active" aria-current="page" href="#">Home</a>
+                <Link to="/index" className={`nav-link ${isActive("/index")}`} aria-current="page">Home</Link>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="#">About</a>
+                <Link to="" className={`nav-link ${isActive("/about")}`}>About</Link>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="#">Services</a>
+                <Link to="" className={`nav-link ${isActive("/services")}`}>Services</Link>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="#">Contact</a>
+                <Link to="" className={`nav-link ${isActive("/contact")}`}>Contact</Link>
               </li>
-              <li className="nav-item" >
-                <Link to="/dashboard" className="nav-link" >
+              <li className="nav-item">
+                <Link to="/dashboard" className={`nav-link ${isActive("/dashboard")}`}>
                   <i className="bi bi-person-fill"></i> Profile
                 </Link>
               </li>

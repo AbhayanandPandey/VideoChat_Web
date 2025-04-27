@@ -77,6 +77,7 @@ function LoginSignup() {
               <label className="form-label">Username</label>
               <input
                 type="text"
+                name='username'
                 className="form-control"
                 placeholder="Enter username"
                 value={form.username}
@@ -89,6 +90,7 @@ function LoginSignup() {
             <label className="form-label">Email</label>
             <input
               type="email"
+              name='email'
               className="form-control"
               placeholder="Enter email"
               value={form.email}
@@ -101,6 +103,7 @@ function LoginSignup() {
             <input
               type="password"
               className="form-control"
+              name='password'
               placeholder="Enter password"
               value={form.password}
               required
