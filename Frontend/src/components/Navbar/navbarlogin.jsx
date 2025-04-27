@@ -36,7 +36,7 @@ const NavbarLogin = () => {
                 <Link to="/index" className={`nav-link ${isActive("/index")}`} aria-current="page">Home</Link>
               </li>
               <li className="nav-item">
-                <Link to="/AboutLogin" className={`nav-link ${isActive("/AboutLogin")}`}>About</Link>
+                <Link to="/AboutUs" className={`nav-link ${isActive("/AboutUs")}`}>About</Link>
               </li>
               <li className="nav-item">
                 <Link to="" className={`nav-link ${isActive("/services")}`}>Services</Link>
