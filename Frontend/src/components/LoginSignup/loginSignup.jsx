@@ -19,8 +19,8 @@ function LoginSignup() {
         : form;
       const res = await axios.post(endpoint, payload);
       if (isLogin) {
-        localStorage.setItem('token', res.data.token);
-        navigate('/index'); // Redirect to home or wherever you want
+        localStorage.setItem('token1', res.data.token);
+        navigate('/index'); 
       } else {
         alert('Registered successfully, please login.');
         setIsLogin(true);

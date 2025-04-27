@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import 'bootstrap-icons/font/bootstrap-icons.css'; // <-- ADD THIS!
+import { Link } from 'react-router-dom';
+import Dashboard from '../Home/dashboard';
 
 const NavbarLogin = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -11,9 +13,6 @@ const NavbarLogin = () => {
     setIsLogin(!isLogin);
   };
 
-  const openModal = () => {
-    setShowModal(true);
-  };
 
   const closeModal = () => {
     setShowModal(false);
@@ -45,10 +44,10 @@ const NavbarLogin = () => {
               <li className="nav-item">
                 <a className="nav-link" href="#">Contact</a>
               </li>
-              <li className="nav-item">
-                <a className="nav-link" href="">
+              <li className="nav-item" >
+                <Link to="/dashboard" className="nav-link" >
                   <i className="bi bi-person-fill"></i> Profile
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
