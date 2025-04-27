@@ -1,7 +1,7 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Navbar from '../Navbar/navbar';
-import Footer from '../Footer/footer';
+import Navbar from '../Navbar/navbarlogin';
+import Footer from '../Footer/footerlogin';
 
 const About = () => {
   return (

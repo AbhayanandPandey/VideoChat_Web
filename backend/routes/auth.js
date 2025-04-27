@@ -65,4 +65,31 @@ router.get('/dashboard', AuthMiddleware, async (req, res) => {
   }
 });
 
+
+router.post('/feedback', AuthMiddleware, async (req, res) => {
+  const { name, email, message } = req.body;
+
+  try {
+    // Ensure the user exists
+    const user = await User.findById(req.user.userId).select('-password');
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    user.responsename = name;
+    user.responseemail = email;
+    user.responsemessage = message;
+
+    await user.save();
+
+    return res.status(201).json({ message: 'Thank you for your feedback!' });
+
+  } catch (error) {
+    console.error('🚨 Error in /feedback:', error);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
+
+
 module.exports = router;

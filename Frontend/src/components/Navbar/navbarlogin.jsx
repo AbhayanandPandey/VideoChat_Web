@@ -39,10 +39,10 @@ const NavbarLogin = () => {
                 <Link to="/AboutUs" className={`nav-link ${isActive("/AboutUs")}`}>About</Link>
               </li>
               <li className="nav-item">
-                <Link to="" className={`nav-link ${isActive("/services")}`}>Services</Link>
+                <Link to="/ourServices" className={`nav-link ${isActive("/ourServices")}`}>Services</Link>
               </li>
               <li className="nav-item">
-                <Link to="" className={`nav-link ${isActive("/contact")}`}>Contact</Link>
+                <Link to="/contactUs" className={`nav-link ${isActive("/contactUs")}`}>Contact</Link>
               </li>
               <li className="nav-item">
                 <Link to="/dashboard" className={`nav-link ${isActive("/dashboard")}`}>

@@ -6,6 +6,7 @@ import Footer from '../Footer/footer'
 import Main from '../Main/main'
 import { Link } from 'react-router-dom'
 const home = () => {
+  localStorage.removeItem('token1');
   return (
     <>
         <Navbar />
