@@ -7,7 +7,12 @@ const authRoutes = require('./routes/auth');
 
 const app = express();
 const server = http.createServer(app);
-
+const io = new Server(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST']
+  }
+});
 
 require('dotenv').config();
 connectDB();
