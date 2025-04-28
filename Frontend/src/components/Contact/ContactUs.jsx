@@ -50,10 +50,35 @@ const Contact = () => {
     return (
         <>
             <Navbar />
-            <div className="container mt-5">
-                {/* Contact Details & Help Sections omitted for brevity */}
 
-                {/* Feedback Form */}
+            <div className="container mt-5">
+                <section className="text-center mb-5">
+                    <p className="lead">We would love to hear from you! Reach out to us anytime.</p>
+
+                    <div className="row mt-4">
+                        <div className="col-md-4 mb-4">
+                            <div className="p-4 border rounded shadow-sm h-100">
+                                <i className="bi bi-geo-alt-fill mb-3" style={{ fontSize: "2rem", color: "#0d6efd" }}></i>
+                                <h5>Address</h5>
+                                <p>123 Tech Street, Silicon Valley, CA 94043</p>
+                            </div>
+                        </div>
+                        <div className="col-md-4 mb-4">
+                            <div className="p-4 border rounded shadow-sm h-100">
+                                <i className="bi bi-telephone-fill mb-3" style={{ fontSize: "2rem", color: "#0d6efd" }}></i>
+                                <h5>Phone</h5>
+                                <p>+1 (800) 123-4567</p>
+                            </div>
+                        </div>
+                        <div className="col-md-4 mb-4">
+                            <div className="p-4 border rounded shadow-sm h-100">
+                                <i className="bi bi-envelope-fill mb-3" style={{ fontSize: "2rem", color: "#0d6efd" }}></i>
+                                <h5>Email</h5>
+                                <p>support@videochat.com</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
                 <section className="mb-5">
                     <h2 className="text-center mb-4">Send Us Your Feedback</h2>
                     <div className="row justify-content-center">
