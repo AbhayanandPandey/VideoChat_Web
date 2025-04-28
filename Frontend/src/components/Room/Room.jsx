@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Navbar from '../Navbar/navbarlogin.jsx'; // Adjust the import path as necessary
-import Footer from '../Footer/footerlogin.jsx'; // Adjust the import path as necessary
+import Footer from '../Footer/footerlogin.jsx'; // Adjust the import path as 
+import './room.css'; // Adjust the import path as necessary
 import { Link } from 'react-router-dom';
 const VideoHome = () => {
   const [showJoinForm, setShowJoinForm] = useState(false);
@@ -22,7 +23,7 @@ const VideoHome = () => {
 
   const handleJoinSubmit = (e) => {
     e.preventDefault();
-    navigate(`join/${joinDetails.roomId}`, { state: { password: joinDetails.password } });
+    navigate(`/join/${joinDetails.roomId}`, { state: { password: joinDetails.password } });
   };
 
   const handleCreateSubmit = (e) => {
@@ -30,8 +31,8 @@ const VideoHome = () => {
     setShowSuccessPopup(true);
     setTimeout(() => {
       setShowSuccessPopup(false);
-      navigate(`room/${createDetails.roomId}`, { state: { password: createDetails.password } });
-    }, 1500); // show success for 1.5 seconds
+      navigate(`/room/${createDetails.roomId}`, { state: { password: createDetails.password } });
+    }, 1500); 
   };
 
   return (
@@ -42,20 +43,24 @@ const VideoHome = () => {
       <h1 className="mb-4 text-primary">👋 Welcome to Video Chat!</h1>
       <p className="mb-5 text-muted">Connect, Collaborate, Communicate</p>
 
-      <div className="d-flex gap-4">
+      <div className="d-flex gap-4 room">
+        <div className='room1'>
         <button 
-          className="btn btn-success btn-lg px-5"
+          className="btn btn-success btn-lg px-5 butn1"
           onClick={() => setShowCreateForm(true)}
         >
           Create Meeting
         </button>
+        </div>
 
+        <div className='room2'>
         <button 
-          className="btn btn-primary btn-lg px-5"
+          className="btn btn-primary btn-lg px-5 butn2"
           onClick={() => setShowJoinForm(true)}
         >
           Join Meeting
         </button>
+        </div>
       </div>
 
       {/* Join Meeting Form */}

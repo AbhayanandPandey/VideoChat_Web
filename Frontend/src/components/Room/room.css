@@ -1,0 +1,24 @@
+@media screen and (max-width: 608px) {
+  .room {
+    display: block !important;
+  }
+  .room1
+  {
+    width: 100% !important;
+    margin-bottom: 15px;
+  }
+  .room2
+  {
+    width: 100% !important;
+    margin-bottom: 15px;
+  }
+  .butn1
+  {
+    width: 100% !important;
+  }
+    .butn2
+    {
+        width: 100% !important;
+    }
+
+}

@@ -11,6 +11,7 @@ import ContactUs from './components/Contact/ContactUs.jsx';
 import ProtectedRoute from './components/protectedRoute.jsx';
 import Contact from './components/Contact/Contact.jsx';
 import Room from './components/Room/Room.jsx';
+import VideoConference from './components/VideoConference/VideoConference.jsx';
 function App() {
   return (
     <>
@@ -18,8 +19,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginSignup />} /> 
           <Route path="Room" element={<ProtectedRoute><Room /></ProtectedRoute>} />
-          <Route path="/room/:roomId" element={<ProtectedRoute><Room /></ProtectedRoute>} />
-          <Route path="/join/:roomId" element={<ProtectedRoute><Room /></ProtectedRoute>} />
+          <Route path="/room/:roomId" element={<ProtectedRoute><VideoConference /></ProtectedRoute>} />
+          <Route path="/join/:roomId" element={<ProtectedRoute><VideoConference /></ProtectedRoute>} />
           <Route path="/about" element={<About />} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/aboutus" element={<ProtectedRoute><AboutUs /></ProtectedRoute>} />
