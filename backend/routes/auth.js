@@ -6,7 +6,6 @@ const AuthMiddleware = require('../middleware/AuthMiddleware');
 const generateToken = require('../config/jwt');
 const router = express.Router();
 
-// POST /api/auth/register
 router.post('/register', async (req, res) => {
   const { username, email, password } = req.body;
   try {
@@ -17,9 +16,7 @@ router.post('/register', async (req, res) => {
     return res.status(201).json({ token });
   } catch (err) {
     console.error(err);
-    // If it's a duplicate-key error from Mongo
     if (err.code === 11000) {
-      // err.keyValue will tell you which field
       const dupField = Object.keys(err.keyPattern)[0];
       return res
         .status(400)
@@ -30,7 +27,6 @@ router.post('/register', async (req, res) => {
 });
 
 
-// POST /api/auth/login
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -49,7 +45,6 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// GET /api/auth/dashboard  (protected)
 router.get('/dashboard', AuthMiddleware, async (req, res) => {
   try {
     const user = await User
@@ -70,7 +65,6 @@ router.post('/feedback', AuthMiddleware, async (req, res) => {
   const { name, email, message } = req.body;
 
   try {
-    // Ensure the user exists
     const user = await User.findById(req.user.userId).select('-password');
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
@@ -88,8 +82,5 @@ router.post('/feedback', AuthMiddleware, async (req, res) => {
     return res.status(500).json({ error: 'Server error' });
   }
 });
-
-
-
 
 module.exports = router;
