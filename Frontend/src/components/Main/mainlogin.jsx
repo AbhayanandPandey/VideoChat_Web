@@ -38,7 +38,7 @@ const Main = () => {
           secure video & audio—anywhere.
         </p>
         <Link
-          to=""
+          to="/Room"
           className="btn btn-lg btn-primary px-5 py-3 shadow animate__animated animate__zoomIn mt-3"
         >
           🚀 Start VideoChat

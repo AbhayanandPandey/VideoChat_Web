@@ -8,7 +8,10 @@ import Footer from "../Footer/footer";
 export default function Dashboard() {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
-
+  const handleLogout = () => {
+    localStorage.removeItem("token1");
+    navigate("/");
+  };
   useEffect(() => {
     const token = localStorage.getItem("token1");
     if (!token) return navigate("/login");
@@ -53,42 +56,64 @@ export default function Dashboard() {
     <>
     <Navbar />
     
-    <div className="bg-light min-vh-100 py-5">
-      <div className="container">
+    <div className="bg-gradient min-vh-100 d-flex flex-column justify-content-center align-items-center p-3">
+      <div
+        className="card shadow-lg border-0 rounded-4 overflow-hidden w-100"
+        style={{ maxWidth: "850px" }}
+      >
+        {/* Header */}
         <div
-          className="card shadow-lg rounded-lg overflow-hidden mx-auto"
-          style={{ maxWidth: "800px" }}
+          className="p-5 text-white"
+          style={{
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          }}
         >
-          {/* Header with gradient */}
-          <div
-            className="p-4 d-flex align-items-center text-white"
-            style={{
-              background:
-                "linear-gradient(90deg, #4e54c8 0%, #8f94fb 100%)",
-            }}
-          >
-            <i className="bi bi-speedometer2 fs-2 me-3"></i>
-            <h1 className="mb-0">Dashboard</h1>
+          <div className="d-flex align-items-center">
+            <i className="bi bi-speedometer2 fs-1 me-3"></i>
+            <div>
+              <h1 className="h3 mb-1">Dashboard</h1>
+              <p className="mb-0 text-light small">Welcome back!</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="card-body p-4">
+          <div className="d-flex flex-column flex-md-row align-items-center mb-4">
+            <div className="avatar bg-primary text-white rounded-circle d-flex justify-content-center align-items-center me-md-4 mb-3 mb-md-0" style={{ width: "80px", height: "80px", fontSize: "2rem" }}>
+              <i className="bi bi-person-circle"></i>
+            </div>
+            <div className="text-center text-md-start">
+              <h2 className="h4 mb-1">{user.username}</h2>
+              <p className="text-muted mb-0">{user.email}</p>
+            </div>
           </div>
 
-          {/* Body */}
-          <div className="card-body">
-            <div className="d-flex align-items-center mb-4">
-              <i className="bi bi-person-circle text-primary fs-1 me-3"></i>
-              <div>
-                <h3 className="mb-1">Welcome, {user.username}</h3>
-                <p className="mb-0 text-muted">{user.email}</p>
+          {/* Add more sections here */}
+          <div className="row g-3 mb-4">
+            <div className="col-12 col-md-6">
+              <div className="p-3 bg-light rounded shadow-sm">
+                <h5 className="mb-2">Your Meetings</h5>
+                <p className="mb-0 text-muted">No recent meetings yet.</p>
               </div>
             </div>
-
-            {/* You can add more sections here: stats, recent activity, etc. */}
+            <div className="col-12 col-md-6">
+              <div className="p-3 bg-light rounded shadow-sm">
+                <h5 className="mb-2">Statistics</h5>
+                <p className="mb-0 text-muted">Coming soon...</p>
+              </div>
+            </div>
           </div>
-            <button className="btn btn-danger" onClick={() => {
-              localStorage.removeItem("token1");
-              navigate("/");
-            }}>
-              Logout    
-              </button>
+
+          {/* Logout Button */}
+          <div className="text-center">
+            <button 
+              className="btn btn-outline-danger w-100 py-2 rounded-3"
+              onClick={handleLogout}
+            >
+              <i className="bi bi-box-arrow-right me-2"></i> Logout
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -79,7 +79,7 @@ function LoginSignup() {
                 type="text"
                 name='username'
                 className="form-control"
-                placeholder="Enter username"
+                placeholder="Enter Unique username"
                 value={form.username}
                 required
                 onChange={(e) => setForm({ ...form, username: e.target.value })}

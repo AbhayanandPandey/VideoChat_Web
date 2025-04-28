@@ -92,7 +92,7 @@ const About = () => {
       <div className="text-center mt-5">
         <h4 className="fw-bold">Ready to get started?</h4>
         <p className="text-muted">Create your first meeting today — it's free and easy!</p>
-        <a href="" className="btn btn-primary btn-lg mt-2">Join Now</a>
+        <Link to="/Room" className="btn btn-primary btn-lg mt-2">Join Now</Link>
       </div>
     </div>
     <Footer />
