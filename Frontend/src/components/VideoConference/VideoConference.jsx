@@ -1,76 +1,108 @@
-    import React from 'react';
-    import 'bootstrap/dist/css/bootstrap.min.css';
+import React, { useState } from 'react';
+import { Container, Row, Col, Button, Form } from 'react-bootstrap';
+import {
+  FaArrowLeft,
+  FaArrowRight,
+  FaMicrophoneSlash,
+  FaVideoSlash,
+  FaDesktop,
+  FaSignOutAlt
+} from 'react-icons/fa';
+import './Video.css';
 
-    const VideoConference = () => {
-    return (
-        <div className="d-flex flex-column flex-md-row vh-100">
-        {/* Video Section (Now on Left Side) */}
-        <div className="flex-grow-1 bg-dark d-flex flex-column p-3">
-            <h4 className="text-white mb-4 text-center">Video Conference</h4>
+const dummyVideos = [
+  { id: 1, name: 'Person 1' },
+  { id: 2, name: 'Person 2' },
+  { id: 3, name: 'Person 3' },
+  { id: 4, name: 'Person 4' },
+  { id: 5, name: 'Person 5' },
+];
 
-            {/* Video Grid */}
-            <div className="row g-2 flex-grow-1">
-            <div className="col-12 col-sm-6 col-md-6 col-lg-6">
-                <div className="bg-secondary rounded h-100 d-flex align-items-center justify-content-center" style={{ minHeight: '150px' }}>
-                <p className="text-white">Video 1</p>
+const VideoRoom = () => {
+  const [currentPage, setCurrentPage] = useState(0);
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState('');
+
+  const isMobile = window.innerWidth < 768;
+  const videosPerPage = isMobile ? 2 : 4;
+  const maxPage = Math.ceil(dummyVideos.length / videosPerPage) - 1;
+
+  const handlePrev = () => currentPage > 0 && setCurrentPage(currentPage - 1);
+  const handleNext = () => currentPage < maxPage && setCurrentPage(currentPage + 1);
+
+  const handleSendMessage = (e) => {
+    e.preventDefault();
+    if (newMessage.trim()) {
+      setMessages([...messages, newMessage]);
+      setNewMessage('');
+    }
+  };
+
+  const visibleVideos = dummyVideos.slice(
+    currentPage * videosPerPage,
+    (currentPage + 1) * videosPerPage
+  );
+
+  return (
+    <Container fluid className="video-room">
+      <Row className="h-100">
+        {/* Video Section */}
+        <Col md={9} xs={12} className="video-section">
+          <div className="videos-wrapper">
+            <div className="slider-buttons left">
+              <FaArrowLeft
+                onClick={handlePrev}
+                className={`slider-icon ${currentPage === 0 ? 'disabled' : ''}`}
+              />
+            </div>
+
+            <div className="videos-grid">
+              {visibleVideos.map((video) => (
+                <div key={video.id} className="video-box">
+                  <div className="video-name">{video.name}</div>
+                  <div className="video-feed">Video Stream Here</div>
                 </div>
-            </div>
-            <div className="col-12 col-sm-6 col-md-6 col-lg-6">
-                <div className="bg-secondary rounded h-100 d-flex align-items-center justify-content-center" style={{ minHeight: '150px' }}>
-                <p className="text-white">Video 2</p>
-                </div>
-            </div>
-            <div className="col-12 col-sm-6 col-md-6 col-lg-6">
-                <div className="bg-secondary rounded h-100 d-flex align-items-center justify-content-center" style={{ minHeight: '150px' }}>
-                <p className="text-white">Video 3</p>
-                </div>
-            </div>
-            <div className="col-12 col-sm-6 col-md-6 col-lg-6">
-                <div className="bg-secondary rounded h-100 d-flex align-items-center justify-content-center" style={{ minHeight: '150px' }}>
-                <p className="text-white">Video 4</p>
-                </div>
-            </div>
+              ))}
             </div>
 
-            {/* Bottom Controls */}
-            <div className="mt-3 d-flex justify-content-center flex-wrap gap-2">
-            <button className="btn btn-danger">End Call</button>
-            <button className="btn btn-secondary">Mute</button>
-            <button className="btn btn-secondary">Stop Video</button>
+            <div className="slider-buttons right">
+              <FaArrowRight
+                onClick={handleNext}
+                className={`slider-icon ${currentPage === maxPage ? 'disabled' : ''}`}
+              />
             </div>
-        </div>
+          </div>
 
-        {/* Chat Section (Now on Right Side) */}
-        <div className="bg-light border-start w-100 w-md-25" style={{ maxWidth: '350px', minWidth: '250px', overflowY: 'auto' }}>
-            <div className="p-3 d-flex flex-column h-100">
-            <h4 className="mb-4 text-center">Chat</h4>
+          {/* Control Buttons */}
+          <div className="controls">
+            <Button variant="danger" className="mx-2"><FaVideoSlash /></Button>
+            <Button variant="warning" className="mx-2"><FaMicrophoneSlash /></Button>
+            <Button variant="info" className="mx-2"><FaDesktop /></Button>
+            <Button variant="secondary" className="mx-2"><FaSignOutAlt /></Button>
+          </div>
+        </Col>
 
-            {/* Chat Messages */}
-            <div className="flex-grow-1 mb-3 overflow-auto">
-                <div className="bg-white p-2 rounded shadow-sm mb-2">
-                <strong>User 1:</strong> Hello!
-                </div>
-                <div className="bg-white p-2 rounded shadow-sm mb-2">
-                <strong>User 2:</strong> Hi there!
-                </div>
-                {/* More messages */}
-            </div>
+        {/* Chat Section */}
+        <Col md={3} xs={12} className="chat-section">
+          <div className="chat-messages">
+            {messages.map((msg, idx) => (
+              <div key={idx} className="chat-message">{msg}</div>
+            ))}
+          </div>
+          <Form onSubmit={handleSendMessage} className="chat-input-area">
+            <Form.Control
+              type="text"
+              value={newMessage}
+              placeholder="Type a message..."
+              onChange={(e) => setNewMessage(e.target.value)}
+              className="chat-input"
+            />
+            <Button type="submit" variant="primary" className="send-btn">Send</Button>
+          </Form>
+        </Col>
+      </Row>
+    </Container>
+  );
+};
 
-            {/* Chat Input */}
-            <form className="d-flex">
-                <input 
-                type="text" 
-                className="form-control me-2" 
-                placeholder="Type a message..."
-                />
-                <button className="btn btn-primary" type="submit">
-                Send
-                </button>
-            </form>
-            </div>
-        </div>
-        </div>
-    );
-    };
-
-    export default VideoConference;
+export default VideoRoom;
