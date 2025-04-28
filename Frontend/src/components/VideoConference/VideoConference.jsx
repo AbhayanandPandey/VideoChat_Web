@@ -46,7 +46,6 @@ const VideoRoom = () => {
   return (
     <Container fluid className="video-room">
       <Row className="h-100">
-        {/* Video Section */}
         <Col md={9} xs={12} className="video-section">
           <div className="videos-wrapper">
             <div className="slider-buttons left">
@@ -73,7 +72,6 @@ const VideoRoom = () => {
             </div>
           </div>
 
-          {/* Control Buttons */}
           <div className="controls">
             <Button variant="danger" className="mx-2"><FaVideoSlash /></Button>
             <Button variant="warning" className="mx-2"><FaMicrophoneSlash /></Button>

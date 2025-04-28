@@ -58,7 +58,7 @@
     border-radius: 10px;
     overflow: hidden;
     position: relative;
-    height: 45vh; /* Bigger height for desktop */
+    height: 45vh; 
   }
   
   @media (max-width: 767px) {
