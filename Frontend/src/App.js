@@ -18,7 +18,7 @@ function App() {
       <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginSignup />} /> 
-          <Route path="Room" element={<ProtectedRoute><Room /></ProtectedRoute>} />
+          <Route path="/Room" element={<ProtectedRoute><Room /></ProtectedRoute>} />
           <Route path="/room/:roomId" element={<ProtectedRoute><VideoConference /></ProtectedRoute>} />
           <Route path="/join/:roomId" element={<ProtectedRoute><VideoConference /></ProtectedRoute>} />
           <Route path="/about" element={<About />} />
