@@ -12,7 +12,7 @@ const socket = io({
   reconnectionAttempts: Infinity,
   reconnectionDelay: 1000,
   reconnectionDelayMax: 5000,
-});
+});   
 
 const VideoConference = () => {
   const { roomId } = useParams();
