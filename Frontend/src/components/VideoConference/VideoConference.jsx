@@ -1,15 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import Peer from 'simple-peer';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './VideoConference.css';
+import process from 'process';
+window.process = process;
 
 const socket = io('http://localhost:5000');
 
 const VideoConference = () => {
   const { roomId } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const { password } = location.state || {};
 
   const [peers, setPeers] = useState([]);
@@ -17,36 +20,40 @@ const VideoConference = () => {
   const [newMessage, setNewMessage] = useState('');
   const userVideo = useRef();
   const peersRef = useRef([]);
-  const [stream, setStream] = useState();
+  const [stream, setStream] = useState(null);
 
   useEffect(() => {
     navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(currentStream => {
       setStream(currentStream);
-      if (userVideo.current) {
-        userVideo.current.srcObject = currentStream;
-      }
+      if (userVideo.current) userVideo.current.srcObject = currentStream;
 
       socket.emit('join-room', { roomId, password });
 
       socket.on('all-users', users => {
-        const peers = [];
+        const peerConnections = [];
         users.forEach(userID => {
           const peer = createPeer(userID, socket.id, currentStream);
           peersRef.current.push({ peerID: userID, peer });
-          peers.push({ peerID: userID, peer });
+          peerConnections.push({ peerID: userID, peer });
         });
-        setPeers(peers);
+        setPeers(peerConnections);
       });
 
       socket.on('user-joined', payload => {
         const peer = addPeer(payload.signal, payload.callerID, currentStream);
         peersRef.current.push({ peerID: payload.callerID, peer });
-        setPeers(users => [...users, { peerID: payload.callerID, peer }]);
+        setPeers(prev => [...prev, { peerID: payload.callerID, peer }]);
       });
 
       socket.on('receiving-returned-signal', payload => {
         const item = peersRef.current.find(p => p.peerID === payload.id);
-        if (item) item.peer.signal(payload.signal);
+        if (item) {
+          try {
+            item.peer.signal(payload.signal);
+          } catch (err) {
+            console.error('Error signaling peer (returning):', err);
+          }
+        }
       });
 
       socket.on('receive-message', message => {
@@ -55,19 +62,20 @@ const VideoConference = () => {
 
       return () => {
         peersRef.current.forEach(p => p.peer.destroy());
+        if (userVideo.current?.srcObject) {
+          userVideo.current.srcObject.getTracks().forEach(track => track.stop());
+        }
         socket.disconnect();
       };
     });
-  }, []);
+  }, [roomId, password, navigate]);
 
-  function createPeer(userToSignal, callerID, stream) {
+  const createPeer = (userToSignal, callerID, stream) => {
     const peer = new Peer({
       initiator: true,
       trickle: false,
       stream,
-      config: {
-        iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
-      }
+      config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
     });
 
     peer.on('signal', signal => {
@@ -76,20 +84,18 @@ const VideoConference = () => {
 
     peer.on('close', () => {
       peersRef.current = peersRef.current.filter(p => p.peer !== peer);
-      setPeers(users => users.filter(p => p.peer !== peer));
+      setPeers(prev => prev.filter(p => p.peer !== peer));
     });
 
     return peer;
-  }
+  };
 
-  function addPeer(incomingSignal, callerID, stream) {
+  const addPeer = (incomingSignal, callerID, stream) => {
     const peer = new Peer({
       initiator: false,
       trickle: false,
       stream,
-      config: {
-        iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
-      }
+      config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
     });
 
     peer.on('signal', signal => {
@@ -98,35 +104,29 @@ const VideoConference = () => {
 
     peer.on('close', () => {
       peersRef.current = peersRef.current.filter(p => p.peer !== peer);
-      setPeers(users => users.filter(p => p.peer !== peer));
+      setPeers(prev => prev.filter(p => p.peer !== peer));
     });
 
-    peer.on('error', err => console.error('Peer Error:', err));
-
     try {
-      peer.signal(incomingSignal);
+      if (incomingSignal) peer.signal(incomingSignal);
     } catch (err) {
-      console.error('Error signaling peer:', err);
+      console.error('Failed to signal peer (incoming):', err);
     }
 
     return peer;
-  }
+  };
 
   const toggleMute = () => {
-    if (stream) {
-      stream.getAudioTracks()[0].enabled = !stream.getAudioTracks()[0].enabled;
-    }
+    if (stream) stream.getAudioTracks()[0].enabled = !stream.getAudioTracks()[0].enabled;
   };
 
   const toggleVideo = () => {
-    if (stream) {
-      stream.getVideoTracks()[0].enabled = !stream.getVideoTracks()[0].enabled;
-    }
+    if (stream) stream.getVideoTracks()[0].enabled = !stream.getVideoTracks()[0].enabled;
   };
 
   const leaveCall = () => {
     peersRef.current.forEach(p => p.peer.destroy());
-    if (userVideo.current && userVideo.current.srcObject) {
+    if (userVideo.current?.srcObject) {
       userVideo.current.srcObject.getTracks().forEach(track => track.stop());
     }
     socket.disconnect();
@@ -139,14 +139,14 @@ const VideoConference = () => {
       const screenTrack = screenStream.getVideoTracks()[0];
 
       peersRef.current.forEach(({ peer }) => {
-        const sender = peer._pc.getSenders().find(s => s.track && s.track.kind === 'video');
+        const sender = peer._pc.getSenders().find(s => s.track?.kind === 'video');
         if (sender) sender.replaceTrack(screenTrack);
       });
 
       screenTrack.onended = () => {
         const originalTrack = stream.getVideoTracks()[0];
         peersRef.current.forEach(({ peer }) => {
-          const sender = peer._pc.getSenders().find(s => s.track && s.track.kind === 'video');
+          const sender = peer._pc.getSenders().find(s => s.track?.kind === 'video');
           if (sender) sender.replaceTrack(originalTrack);
         });
       };
@@ -166,7 +166,28 @@ const VideoConference = () => {
 
   return (
     <div className="d-flex vh-100 overflow-hidden">
-      <div className="bg-light border-end d-flex flex-column" style={{ width: '300px' }}>
+      <div className="flex-grow-1 d-flex flex-column p-3 bg-dark text-white">
+        <h5 className="text-center mb-3">Video Room</h5>
+        <div className="row g-3 flex-grow-1 overflow-auto">
+          <div className="col-6 col-md-4">
+            <div className="video-wrapper">
+              <video playsInline muted ref={userVideo} autoPlay className="video-box" />
+            </div>
+          </div>
+          {peers.map(({ peerID, peer }) => (
+            <Video key={peerID} peer={peer} />
+          ))}
+        </div>
+
+        <div className="mt-3 d-flex justify-content-center flex-wrap gap-3">
+          <button className="btn btn-danger" onClick={leaveCall}>End Call</button>
+          <button className="btn btn-secondary" onClick={toggleMute}>Mute</button>
+          <button className="btn btn-secondary" onClick={toggleVideo}>Video</button>
+          <button className="btn btn-secondary" onClick={shareScreen}>Share Screen</button>
+        </div>
+      </div>
+
+      <div className="bg-light border-start d-flex flex-column" style={{ width: '300px' }}>
         <div className="flex-grow-1 overflow-auto p-3">
           <h5 className="text-center mb-4">Group Chat</h5>
           <div className="chat-messages mb-3">
@@ -189,28 +210,6 @@ const VideoConference = () => {
           <button className="btn btn-primary" type="submit">Send</button>
         </form>
       </div>
-
-      <div className="flex-grow-1 d-flex flex-column p-3 bg-dark">
-        <h5 className="text-white text-center mb-3">Video Room</h5>
-
-        <div className="row g-3 flex-grow-1 overflow-auto">
-          <div className="col-6 col-md-4">
-            <div className="video-wrapper">
-              <video playsInline muted ref={userVideo} autoPlay className="video-box" />
-            </div>
-          </div>
-          {peers.map(({ peerID, peer }) => (
-            <Video key={peerID} peer={peer} />
-          ))}
-        </div>
-
-        <div className="mt-3 d-flex justify-content-center flex-wrap gap-3">
-          <button className="btn btn-danger" onClick={leaveCall}>End Call</button>
-          <button className="btn btn-secondary" onClick={toggleMute}>Mute</button>
-          <button className="btn btn-secondary" onClick={toggleVideo}>Video</button>
-          <button className="btn btn-secondary" onClick={shareScreen}>Share Screen</button>
-        </div>
-      </div>
     </div>
   );
 };
@@ -220,9 +219,7 @@ const Video = ({ peer }) => {
 
   useEffect(() => {
     peer.on('stream', stream => {
-      if (ref.current) {
-        ref.current.srcObject = stream;
-      }
+      if (ref.current) ref.current.srcObject = stream;
     });
   }, [peer]);
 
@@ -234,4 +231,5 @@ const Video = ({ peer }) => {
     </div>
   );
 };
+
 export default VideoConference;

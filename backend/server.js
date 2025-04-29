@@ -5,7 +5,6 @@ const { Server } = require('socket.io');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
-
 require('dotenv').config();
 
 const app = express();
@@ -17,51 +16,51 @@ const io = new Server(server, {
   }
 });
 
-// Connect Database
 connectDB();
 
-// Middlewares
 app.use(cors());
 app.use(express.json());
 app.use('/api/auth', authRoutes);
-
-// --- WebRTC + Socket.IO Events ---
 
 const rooms = {};
 
 io.on('connection', socket => {
   socket.on('join-room', ({ roomId, password }) => {
-    if (rooms[roomId]) {
-      rooms[roomId].push(socket.id);
-    } else {
-      rooms[roomId] = [socket.id];
+    if (!roomId) {
+      socket.emit('invalid-room');
+      return;
     }
+    if (!rooms[roomId]) rooms[roomId] = [];
+    rooms[roomId].push(socket.id);
+
     const otherUsers = rooms[roomId].filter(id => id !== socket.id);
     socket.emit('all-users', otherUsers);
 
-    socket.to(roomId).emit('user-joined', { callerID: socket.id, signal: null });
     socket.join(roomId);
+    socket.to(roomId).emit('user-joined', { callerID: socket.id });
   });
 
-  socket.on('sending-signal', payload => {
-    io.to(payload.userToSignal).emit('user-joined', { signal: payload.signal, callerID: payload.callerID });
+  socket.on('sending-signal', ({ userToSignal, callerID, signal }) => {
+    io.to(userToSignal).emit('user-joined', { signal, callerID });
   });
 
-  socket.on('returning-signal', payload => {
-    io.to(payload.callerID).emit('receiving-returned-signal', { signal: payload.signal, id: socket.id });
+  socket.on('returning-signal', ({ signal, callerID }) => {
+    io.to(callerID).emit('receiving-returned-signal', { signal, id: socket.id });
   });
 
   socket.on('send-message', ({ roomId, message }) => {
-    io.to(roomId).emit('receive-message', { user: 'User', text: message });
+    // broadcast to other users only
+    socket.to(roomId).emit('receive-message', { user: 'User', text: message });
   });
 
   socket.on('disconnect', () => {
-    for (const roomId in rooms) {
-      rooms[roomId] = rooms[roomId].filter(id => id !== socket.id);
+    for (const r in rooms) {
+      rooms[r] = rooms[r].filter(id => id !== socket.id);
+      if (rooms[r].length === 0) delete rooms[r];
     }
   });
 });
 
-// Start Server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
