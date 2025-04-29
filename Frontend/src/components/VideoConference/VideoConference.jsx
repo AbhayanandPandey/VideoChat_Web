@@ -5,14 +5,7 @@ import Peer from 'simple-peer';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './VideoConference.css';
 
-// ✨ Correct Socket: No hardcoded localhost, auto-detect server + reconnect settings
-const socket = io({
-  transports: ['websocket'], 
-  reconnection: true,
-  reconnectionAttempts: Infinity,
-  reconnectionDelay: 1000,
-  reconnectionDelayMax: 5000,
-});   
+const socket = io('http://localhost:5000');
 
 const VideoConference = () => {
   const { roomId } = useParams();
@@ -60,21 +53,10 @@ const VideoConference = () => {
         setMessages(prev => [...prev, message]);
       });
 
-      socket.on('user-left', id => {
-        const peerObj = peersRef.current.find(p => p.peerID === id);
-        if (peerObj) {
-          peerObj.peer.destroy();
-        }
-        peersRef.current = peersRef.current.filter(p => p.peerID !== id);
-        setPeers(users => users.filter(p => p.peerID !== id));
-      });
-
       return () => {
         peersRef.current.forEach(p => p.peer.destroy());
         socket.disconnect();
       };
-    }).catch(err => {
-      console.error('Error getting media devices:', err);
     });
   }, []);
 
@@ -84,14 +66,7 @@ const VideoConference = () => {
       trickle: false,
       stream,
       config: {
-        iceServers: [
-          { urls: 'stun:stun.l.google.com:19302' },
-          {
-            urls: 'turn:relay.metered.ca:80',
-            username: 'openrelayproject',
-            credential: 'openrelayproject',
-          }
-        ]
+        iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
       }
     });
 
@@ -104,8 +79,6 @@ const VideoConference = () => {
       setPeers(users => users.filter(p => p.peer !== peer));
     });
 
-    peer.on('error', err => console.error('Peer Error:', err));
-
     return peer;
   }
 
@@ -115,14 +88,7 @@ const VideoConference = () => {
       trickle: false,
       stream,
       config: {
-        iceServers: [
-          { urls: 'stun:stun.l.google.com:19302' },
-          {
-            urls: 'turn:relay.metered.ca:80',
-            username: 'openrelayproject',
-            credential: 'openrelayproject',
-          }
-        ]
+        iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
       }
     });
 
@@ -148,19 +114,13 @@ const VideoConference = () => {
 
   const toggleMute = () => {
     if (stream) {
-      const audioTrack = stream.getAudioTracks()[0];
-      if (audioTrack) {
-        audioTrack.enabled = !audioTrack.enabled;
-      }
+      stream.getAudioTracks()[0].enabled = !stream.getAudioTracks()[0].enabled;
     }
   };
 
   const toggleVideo = () => {
     if (stream) {
-      const videoTrack = stream.getVideoTracks()[0];
-      if (videoTrack) {
-        videoTrack.enabled = !videoTrack.enabled;
-      }
+      stream.getVideoTracks()[0].enabled = !stream.getVideoTracks()[0].enabled;
     }
   };
 
@@ -170,7 +130,7 @@ const VideoConference = () => {
       userVideo.current.srcObject.getTracks().forEach(track => track.stop());
     }
     socket.disconnect();
-    window.location.href = '/';
+    window.location.href = '/index';
   };
 
   const shareScreen = async () => {
@@ -274,5 +234,4 @@ const Video = ({ peer }) => {
     </div>
   );
 };
-
 export default VideoConference;
