@@ -23,6 +23,7 @@ const VideoConference = () => {
   const [stream, setStream] = useState(null);
 
   useEffect(() => {
+    
     navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(currentStream => {
       setStream(currentStream);
       if (userVideo.current) userVideo.current.srcObject = currentStream;

@@ -6,6 +6,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css'; // Import Bootstrap Icons
 import Footer from '../Footer/footerlogin';
 import { Link } from 'react-router-dom';
 const About = () => {
+  
   return (
     <>
       <Navbar />
