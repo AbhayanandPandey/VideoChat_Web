@@ -23,7 +23,7 @@ A modern and responsive video chat web application built using **React**, **Sock
 ### 💬 UI/UX Enhancements
 - Animated transitions using **Framer Motion**
 - Responsive design for all screen sizes
-- Clean layout inspired by [briceclain.com](https://briceclain.com/en/)
+- Clean layout 
 - Elegant hover effects and animations on cards and buttons
 
 ## 🛠 Tech Stack
