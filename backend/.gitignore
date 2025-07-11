@@ -29,7 +29,6 @@ build/
 .out/
 .cache/
 
-# Temporary files
 tmp/
 temp/
 *.swp
